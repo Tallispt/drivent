@@ -1,5 +1,5 @@
 import { AuthenticatedRequest } from "@/middlewares";
-import { ticketsServices } from "@/services";
+import ticketsServices from "@/services/tickets-service";
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 

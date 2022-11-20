@@ -37,3 +37,23 @@ export type CreateTicket = {
   Enrollment: number;
   TicketType: number;
 }
+
+export type PaymentData = {
+  ticketId: number,
+  cardData: {
+    issuer: string,
+    number: number,
+    name: string,
+    expirationDate: Date,
+    cvv: number
+  }
+}
+
+export type CreatePayment = {
+  ticketId: number,
+  value: number,
+  cardIssuer: IssuerType,
+  cardLastDigits: string
+}
+
+type IssuerType = "VISA" | "MASTERCARD"

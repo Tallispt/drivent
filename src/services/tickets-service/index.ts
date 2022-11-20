@@ -41,8 +41,10 @@ async function enrollmentExists(userId: number) {
   return enrollment;
 }
 
-export const ticketsServices = {
+const ticketsServices = {
   getAllTicketTypes,
   getAllTickets,
   createTicket
 };
+
+export default ticketsServices;
