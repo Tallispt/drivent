@@ -11,7 +11,7 @@ async function getPaymentTicket(ticketId: number, userId: number) {
     throw notFoundError();
   }
 
-  if (ticket.Ticket.Enrollment.userId != userId) {
+  if (ticket.Ticket.Enrollment.userId !== userId) {
     throw unauthorizedError();
   }
 
