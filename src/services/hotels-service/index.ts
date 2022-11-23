@@ -7,9 +7,11 @@ async function findHotels() {
 
 async function findHotelById(hotelId: number) {
   const hotel = await hotelRepository.findByHotelId(hotelId);
+
   if (!hotel) {
     throw notFoundError();
   }
+  return hotel;
 }
 
 const hotelServices = {
