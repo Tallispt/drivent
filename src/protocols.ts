@@ -42,10 +42,10 @@ export type PaymentData = {
   ticketId: number,
   cardData: {
     issuer: string,
-    number: number,
+    number: string,
     name: string,
     expirationDate: Date,
-    cvv: number
+    cvv: string
   }
 }
 
