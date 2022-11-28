@@ -8,6 +8,9 @@ async function findByHotelId(id: number) {
   return await prisma.hotel.findFirst({
     where: {
       id
+    },
+    include: {
+      Rooms: true
     }
   });
 }
