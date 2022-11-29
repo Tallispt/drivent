@@ -5,7 +5,7 @@ import ticketsRepository from "@/repositories/ticket-repository";
 async function findHotels(userId: number) {
   const ticket = await ticketsRepository.findByUserId(userId);
 
-  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== "PAID") {
+  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== "PAID" || !ticket?.TicketType.includesHotel) {
     throw invalidHotelRequisitonError();
   }
 
