@@ -1,6 +1,6 @@
 import { AuthenticatedRequest } from "@/middlewares";
 import hotelServices from "@/services/hotels-service";
-import { Request, Response } from "express";
+import { Response } from "express";
 import httpStatus from "http-status";
 
 export async function getHotels(req: AuthenticatedRequest, res: Response) {
@@ -17,11 +17,12 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function getHotelsWithParam(req: Request, res: Response) {
+export async function getHotelsWithParam(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
   const { hotelId } = req.params;
 
   try {
-    const hotel = await hotelServices.findHotelById(Number(hotelId));
+    const hotel = await hotelServices.findHotelById(userId, Number(hotelId));
     return res.status(httpStatus.OK).send(hotel);
   } catch (error) {
     return res.status(httpStatus.NOT_FOUND).send(error);
