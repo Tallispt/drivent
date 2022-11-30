@@ -3,7 +3,7 @@ import faker from "@faker-js/faker";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import supertest from "supertest";
-import { createEnrollmentWithAddress, createHotel, createPresencialTicketType, createRooms, createTicket, createTicketType, createUser } from "../factories";
+import { createEnrollmentWithAddress, createHotel, createPresentialWithHotelTicketType, createRooms, createTicket, createTicketType, createUser } from "../factories";
 import { cleanDb, generateValidToken } from "../helpers";
 
 beforeAll(async () => {
@@ -72,11 +72,11 @@ describe("GET /hotel", () => {
       expect(response.status).toBe(httpStatus.BAD_REQUEST);
     });
 
-    it("Should respond with empty array when there are no hotel created", async () => {
+    it("Should respond with status 200 and empty array when there are no hotel created", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createPresencialTicketType();
+      const ticketType = await createPresentialWithHotelTicketType();
       await createTicket(enrollment.id, ticketType.id, "PAID");
 
       const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
@@ -88,7 +88,7 @@ describe("GET /hotel", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createPresencialTicketType();
+      const ticketType = await createPresentialWithHotelTicketType();
       await createTicket(enrollment.id, ticketType.id, "PAID");
 
       const hotels = await createHotel();
@@ -138,8 +138,19 @@ describe("GET /hotel/:hotelId", () => {
   });
 
   describe("When token is valid", () => {
+    it("Should respond status 400 if user does not have enrollement", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const param = faker.datatype.number(10);
+
+      const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.BAD_REQUEST);
+    });
+
     it("Should respond with respond with status 400 when hotelId is not a number", async () => {
-      const token = await generateValidToken();
+      const user = await createUser();
+      const token = await generateValidToken(user);
       const param = faker.lorem.word(1);
 
       const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
@@ -147,8 +158,25 @@ describe("GET /hotel/:hotelId", () => {
       expect(response.status).toBe(httpStatus.BAD_REQUEST);
     });
 
+    it("Should respond status 400 if user does not have a paid presencial ticket", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType();
+      await createTicket(enrollment.id, ticketType.id, "RESERVED");
+      const param = faker.datatype.number(10);
+
+      const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.BAD_REQUEST);
+    });
+
     it("Should respond with respond with status 404 when hotelId does not exist", async () => {
-      const token = await generateValidToken();
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createPresentialWithHotelTicketType();
+      await createTicket(enrollment.id, ticketType.id, "PAID");
       const param = faker.datatype.number(10);
 
       const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
@@ -156,8 +184,34 @@ describe("GET /hotel/:hotelId", () => {
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
+    it("Should respond with status 200 and hotel with no rooms", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createPresentialWithHotelTicketType();
+      await createTicket(enrollment.id, ticketType.id, "PAID");
+      const hotel = await createHotel();
+      const param = hotel.id;
+
+      const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual({
+        id: hotel.id,
+        name: hotel.name,
+        image: hotel.image,
+        createdAt: hotel.createdAt.toISOString(),
+        updatedAt: hotel.updatedAt.toISOString(),
+        Rooms: []
+      });
+    });
+
     it("Should respond with status 200 and with existing hotel by hotelId", async () => {
-      const token = await generateValidToken();
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createPresentialWithHotelTicketType();
+      await createTicket(enrollment.id, ticketType.id, "PAID");
       const hotel = await createHotel();
       const param = hotel.id;
       const rooms = await createRooms(param, faker.datatype.number(10));
@@ -165,7 +219,6 @@ describe("GET /hotel/:hotelId", () => {
       const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(httpStatus.OK);
-
       expect(response.body).toEqual({
         id: hotel.id,
         name: hotel.name,

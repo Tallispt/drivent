@@ -3,13 +3,13 @@ import hotelRepository from "@/repositories/hotel-repository";
 import ticketsRepository from "@/repositories/ticket-repository";
 
 async function findHotels(userId: number) {
-  await validTicket(userId);
+  await validateTicket(userId);
 
   return await hotelRepository.find();
 }
 
 async function findHotelById(userId: number, hotelId: number) {
-  await validTicket(userId);
+  await validateTicket(userId);
 
   const hotel = await hotelRepository.findByHotelId(hotelId);
 
@@ -19,7 +19,7 @@ async function findHotelById(userId: number, hotelId: number) {
   return hotel;
 }
 
-async function validTicket(userId: number) {
+async function validateTicket(userId: number) {
   const ticket = await ticketsRepository.findByUserId(userId);
 
   if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== "PAID" || !ticket?.TicketType.includesHotel) {

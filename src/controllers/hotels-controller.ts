@@ -25,6 +25,9 @@ export async function getHotelsWithParam(req: AuthenticatedRequest, res: Respons
     const hotel = await hotelServices.findHotelById(userId, Number(hotelId));
     return res.status(httpStatus.OK).send(hotel);
   } catch (error) {
+    if (error.name === "InvalidHotelRequisiton") {
+      return res.status(httpStatus.BAD_REQUEST).send(error);
+    }
     return res.status(httpStatus.NOT_FOUND).send(error);
   }
 }
