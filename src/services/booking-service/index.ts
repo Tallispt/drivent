@@ -4,6 +4,7 @@ import bookingRepository from "@/repositories/booking-repository";
 import roomsRepository from "@/repositories/rooms.repository";
 import ticketsRepository from "@/repositories/ticket-repository";
 import { exclude } from "@/utils/prisma-utils";
+import { TicketStatus } from "@prisma/client";
 
 async function findBooking(userId: number) {
   const booking = await bookingRepository.findByUserId(userId);
@@ -27,7 +28,7 @@ async function createBooking(userId: number, roomId: number) {
   return { bookingId: id };
 }
 
-async function editBooking(userId: number, roomId: number) {
+async function editBooking(userId: number, roomId: number, bookingId: number) {
   await userHasValidTicket(userId);
   await validateRoom(roomId);
 
@@ -37,7 +38,7 @@ async function editBooking(userId: number, roomId: number) {
     throw forbiddenError();
   }
 
-  const { id } = await bookingRepository.edit({ roomId }, booking.id);
+  const { id } = await bookingRepository.edit({ roomId }, bookingId);
 
   return { bookingId: id };
 }
@@ -45,7 +46,7 @@ async function editBooking(userId: number, roomId: number) {
 async function userHasValidTicket(userId: number) {
   const ticket = await ticketsRepository.findByUserId(userId);
 
-  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== "PAID" || !ticket?.TicketType.includesHotel) {
+  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== TicketStatus.PAID || !ticket?.TicketType.includesHotel) {
     throw forbiddenError();
   }
 }

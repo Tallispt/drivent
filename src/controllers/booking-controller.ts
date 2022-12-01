@@ -16,10 +16,11 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
 
 export async function postBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
+  const { roomId } = req.body;
 
   try {
-    await bookingServices.createBooking(userId, Number(...req.body));
-    return res.sendStatus(httpStatus.OK);
+    const booking = await bookingServices.createBooking(userId, Number(roomId));
+    return res.status(httpStatus.OK).send(booking);
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.status(httpStatus.NOT_FOUND).send(error);
@@ -30,10 +31,12 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
 
 export async function putBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
+  const { bookingId } = req.params;
+  const { roomId } = req.body;
 
   try {
-    await bookingServices.editBooking(userId, Number(...req.body));
-    return res.sendStatus(httpStatus.OK);
+    const booking = await bookingServices.editBooking(userId, Number(roomId), Number(bookingId));
+    return res.status(httpStatus.OK).send(booking);
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.status(httpStatus.NOT_FOUND).send(error);

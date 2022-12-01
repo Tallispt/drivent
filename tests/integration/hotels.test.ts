@@ -1,5 +1,6 @@
 import app, { init } from "@/app";
 import faker from "@faker-js/faker";
+import { TicketStatus } from "@prisma/client";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import supertest from "supertest";
@@ -77,7 +78,7 @@ describe("GET /hotel", () => {
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createPresentialWithHotelTicketType();
-      await createTicket(enrollment.id, ticketType.id, "PAID");
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
       const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
 
@@ -89,7 +90,7 @@ describe("GET /hotel", () => {
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createPresentialWithHotelTicketType();
-      await createTicket(enrollment.id, ticketType.id, "PAID");
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
       const hotels = await createHotel();
 
@@ -176,7 +177,7 @@ describe("GET /hotel/:hotelId", () => {
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createPresentialWithHotelTicketType();
-      await createTicket(enrollment.id, ticketType.id, "PAID");
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const param = faker.datatype.number(10);
 
       const response = await server.get(`/hotels/${param}`).set("Authorization", `Bearer ${token}`);
@@ -189,7 +190,7 @@ describe("GET /hotel/:hotelId", () => {
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createPresentialWithHotelTicketType();
-      await createTicket(enrollment.id, ticketType.id, "PAID");
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const hotel = await createHotel();
       const param = hotel.id;
 
@@ -211,7 +212,7 @@ describe("GET /hotel/:hotelId", () => {
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createPresentialWithHotelTicketType();
-      await createTicket(enrollment.id, ticketType.id, "PAID");
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const hotel = await createHotel();
       const param = hotel.id;
       const rooms = await createRooms(param, faker.datatype.number(10));

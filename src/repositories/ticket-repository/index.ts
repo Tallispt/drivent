@@ -1,5 +1,6 @@
 import { prisma } from "@/config";
 import { CreateTicket } from "@/protocols";
+import { TicketStatus } from "@prisma/client";
 
 async function findByEnrollmentId(enrollmentId: number) {
   return await prisma.ticket.findFirst({
@@ -62,7 +63,7 @@ async function create(data: CreateTicket) {
 async function updateByTicketId(id: number) {
   await prisma.ticket.update({
     data: {
-      status: "PAID"
+      status: TicketStatus.PAID
     },
     where: {
       id

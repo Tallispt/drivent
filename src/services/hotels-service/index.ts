@@ -1,6 +1,7 @@
 import { invalidHotelRequisitonError, notFoundError } from "@/errors";
 import hotelRepository from "@/repositories/hotel-repository";
 import ticketsRepository from "@/repositories/ticket-repository";
+import { TicketStatus } from "@prisma/client";
 
 async function findHotels(userId: number) {
   await validateTicket(userId);
@@ -22,7 +23,7 @@ async function findHotelById(userId: number, hotelId: number) {
 async function validateTicket(userId: number) {
   const ticket = await ticketsRepository.findByUserId(userId);
 
-  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== "PAID" || !ticket?.TicketType.includesHotel) {
+  if (!ticket || ticket?.TicketType.isRemote || ticket?.status !== TicketStatus.PAID || !ticket?.TicketType.includesHotel) {
     throw invalidHotelRequisitonError();
   }
 }
