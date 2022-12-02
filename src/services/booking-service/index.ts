@@ -17,6 +17,10 @@ async function findBooking(userId: number) {
 }
 
 async function createBooking(userId: number, roomId: number) {
+  if (await userHasBooking(userId)) {
+    throw forbiddenError();
+  }
+
   await userHasValidTicket(userId);
   await validateRoom(roomId);
 
@@ -32,15 +36,19 @@ async function editBooking(userId: number, roomId: number, bookingId: number) {
   await userHasValidTicket(userId);
   await validateRoom(roomId);
 
-  const booking = await bookingRepository.findByUserId(userId);
-
-  if (!booking) {
+  if (!(await userHasBooking(userId))) {
     throw forbiddenError();
   }
-
   const { id } = await bookingRepository.edit({ roomId }, bookingId);
 
   return { bookingId: id };
+}
+
+async function userHasBooking(userId: number) {
+  const booking = await bookingRepository.findByUserId(userId);
+  if (booking) {
+    return true;
+  } else return false;
 }
 
 async function userHasValidTicket(userId: number) {
